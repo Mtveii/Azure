@@ -1,0 +1,11 @@
+{
+  "Azure": {
+    "Translator": {
+      "Endpoint": "https://api.cognitive.microsofttranslator.com",
+      "Key": "7wSeFKEBdNT2ohp6Bi56zygciJVsQU1dOVew7Z03R4Hek3TvdDPYJQQJ99BLACMsfrFXJ3w3AAAbACOGv9YE",
+      "Location": "westus3",
+      "TranslatorPath": "/translate",
+      "ApiVersion": "3.0"
+    }
+  }
+}

@@ -1,0 +1,93 @@
+﻿@model AzureP33.Models.Home.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Хмарні технології і використання Microsoft Azure під час розробки додатків</h1>
+</div>
+ 
+<h2 class="display-5">
+    Перекладач
+</h2>
+ 
+<form method="get" class="d-flex">
+    <div class="flex-grow-1"></div>
+    <div class="flex-grow-1">
+        <label for="source-textarea" class="form-label">Текст, що буде перекладатись</label>
+        <select class="form-select" aria-label="Мова оригіналу" name="lang-from">
+            @{
+                string selectodKey = Model.FormModel?.LangFrom ?? "uk";
+
+            }
+            @foreach (var item in Model.Languages.Translation)
+            {
+                if (selectodKey == item.Key)
+                {
+                    <option selected value="@item.Key">
+                        @item.Value.Name@(item.Value.NativeName != item.Value.Name ? $" ({item.Value.NativeName})" : "")
+                    </option>
+                }
+                else {
+                    <option value="@item.Key">
+                        @item.Value.Name@(item.Value.NativeName != item.Value.Name ? $" ({item.Value.NativeName})" : "")
+                </option>
+                }
+            }
+            
+
+        </select>
+        <div class="mb-3">
+            <textarea name="original-text" class="form-control" id="source-textarea" rows="3"
+                data-val="true"
+                data-val-required="Поле обов'зкове."
+                data-val-length="Текст має бути від 1 до 1000 символів."
+                data-val-length-min="1"
+                data-val-length-max="1000">@(Model.FormModel?.OriginalText)</textarea>
+            <span class="text-danger field-validation-valid" data-valmsg-for="original-text" data-valmsg-replace="true"></span>
+        </div>
+    </div>
+    <span class="flex-grow-0 m-3">
+        <button class="btn btn-outline-danger" type="button">
+            <i class="bi bi-arrow-left-right"></i>
+        </button>
+        <br/>
+        <button class="btn btn-outline-success mt-4" type="submit" name="action-button" value="translate">
+            <i class="bi bi-translate"></i>
+        </button>
+    </span>
+    <div class="flex-grow-1">
+        <label for="translation-textarea" class="form-label">Результат перекладу</label>
+        <select class="form-select" aria-label="Мова перекладу" name="lang-to">
+            @{
+                string selectod = Model.FormModel?.LangTo ?? "en";
+
+            }
+            @foreach (var item in Model.Languages.Translation)
+            {
+                if (selectod == item.Key)
+                {
+                    <option selected value="@item.Key">
+                        @item.Value.Name@(item.Value.NativeName != item.Value.Name ? $" ({item.Value.NativeName})" : "")
+                    </option>
+                }
+                else
+                {
+                    <option value="@item.Key">
+                        @item.Value.Name@(item.Value.NativeName != item.Value.Name ? $" ({item.Value.NativeName})" : "")
+                    </option>
+                }
+            }
+        </select>
+        <div class="mb-3">
+            <textarea disabled readonly class="form-control" id="translation-textarea"
+                      rows="3">@Model.Item?[0].Trenslations[0].Text</textarea>
+        </div>            
+    </div>
+    <div class="flex-grow-1"></div>
+</form>
+@if (Model.ErrorResponse != null){
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorResponse.Error.Message (@Model.ErrorResponse.Error.Code)
+    </div>  
+}
