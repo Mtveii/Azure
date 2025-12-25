@@ -40,10 +40,10 @@
         <div class="mb-3">
             <textarea name="original-text" class="form-control" id="source-textarea" rows="3"
                 data-val="true"
-                data-val-required="Поле обов'зкове."
-                data-val-length="Текст має бути від 1 до 1000 символів."
-                data-val-length-min="1"
-                data-val-length-max="1000">@(Model.FormModel?.OriginalText)</textarea>
+                data-val-required="Поле обов'язкове."
+                data-val-length="Текст має бути від 2 до 100 символів."
+                data-val-length-min="2"
+                data-val-length-max="100">@(Model.FormModel?.OriginalText)</textarea>
             <span class="text-danger field-validation-valid" data-valmsg-for="original-text" data-valmsg-replace="true"></span>
         </div>
     </div>
@@ -90,4 +90,8 @@
     <div class="alert alert-danger" role="alert">
         @Model.ErrorResponse.Error.Message (@Model.ErrorResponse.Error.Code)
     </div>  
+}
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

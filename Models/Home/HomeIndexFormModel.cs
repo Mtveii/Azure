@@ -13,7 +13,7 @@ namespace AzureP33.Models.Home
 
         [FromQuery(Name = "original-text")]
         [Required(ErrorMessage = "Поле обов'язкове.")]
-        [StringLength(1000, MinimumLength = 1, ErrorMessage = "Текст має бути від {2} до {1} символів.")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Текст має бути від {2} до {1} символів.")]
         public String OriginalText { get; set; } = null!;
 
         [FromQuery(Name = "action-button")]

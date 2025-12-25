@@ -43,6 +43,14 @@ namespace AzureP33.Controllers
 
             if (formModel?.Action == "translate")
             {
+                // Якщо дані не валідні — не виконувати переклад, повернути помилки в форму
+                if (!ModelState.IsValid)
+                {
+                    // FormModel вже встановлено раніше, але гарантуємо що передамо його у ViewModel
+                    viewModel.FormModel = formModel;
+                    return View(viewModel);
+                }
+
                 // Передано дані для перекладу
                 var sec = _configuration.GetSection("Azure")?.GetSection("Translator");
                 if (sec == null)
