@@ -1,0 +1,125 @@
+﻿@model AzureP33.Models.Home.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Хмарні технології і використання Microsoft Azure під час розробки додатків</h1>
+</div>
+ 
+<h2 class="display-5">
+    Перекладач
+</h2>
+
+<a asp-action="Cosmos">Cosmos</a>
+ 
+<form method="get" class="d-flex">
+    <div class="flex-grow-1"></div>
+    <div class="flex-grow-1">
+        <label for="source-textarea" class="form-label">Текст, що буде перекладатись</label>
+        <select class="form-select" aria-label="Мова оригіналу" name="lang-from">
+            @{
+                String selectedKey = Model.FormModel?.LangFrom ?? "en";
+            }
+            @foreach(var item in Model.LanguagesResponse.Translations)
+            {
+                if (selectedKey == item.Key)
+                {
+                    <option selected value="@item.Key">@item.Value.Name</option>
+                }
+                else
+                {
+                    <option value="@item.Key">@item.Value.Name</option>
+                }
+            }
+        </select>
+        <div class="mb-3">
+            <textarea name="original-text" class="form-control" id="source-textarea" rows="3">@(Model.FormModel?.OriginalText ?? "Вітаю")</textarea>
+            @Model.FromTransliteration?.Text
+        </div>
+        
+    </div>
+    <span class="flex-grow-0 m-3">
+        <button class="btn btn-outline-danger" type="button">
+            <i class="bi bi-arrow-left-right"></i>
+        </button>
+        <br/>
+        <button class="btn btn-outline-success mt-4" type="submit" name="action-button" value="translate">
+            <i class="bi bi-translate"></i>
+        </button>
+        @* <br/>
+        <button class="btn btn-outline-warning mt-4" type="submit" name="action-button" value="transliterate">
+            <i class="bi bi-translate"></i>
+        </button> *@
+    </span>
+    <div class="flex-grow-1">
+        <label for="translation-textarea" class="form-label">Результат перекладу</label>
+        <select class="form-select" aria-label="Мова перекладу" name="lang-to">
+            @{
+                selectedKey = Model.FormModel?.LangTo ?? "uk";
+            }
+            @foreach (var item in Model.LanguagesResponse.Translations)
+            {
+                if (selectedKey == item.Key)
+                {
+                    <option selected value="@item.Key">@item.Value.Name</option>
+                }
+                else
+                {
+                    <option value="@item.Key">@item.Value.Name</option>
+                }
+            }
+        </select>
+        <div class="mb-3">
+            <textarea disabled readonly class="form-control" id="translation-textarea" 
+                rows="3">@Model.Items?[0].Translations[0].Text</textarea>
+            @Model.ToTransliteration?.Text
+        </div>            
+    </div>
+    <div class="flex-grow-1"></div>
+</form>
+@if(Model.ErrorResponse != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorResponse.Error.Message (@Model.ErrorResponse.Error.Code)
+    </div>
+}
+
+@ViewData["result"]
+<h2>English</h2>
+<p>
+    Microsoft Azure, sometimes stylized Azure, and formerly Windows Azure, is the cloud computing platform developed by Microsoft. It offers management, access and development of applications and services to individuals, companies, and governments through its global infrastructure. It also provides capabilities that are usually not included within other cloud platforms, including software as a service (SaaS), platform as a service (PaaS), and infrastructure as a service (IaaS). Microsoft Azure supports many programming languages, tools, and frameworks, including Microsoft-specific and third-party software and systems.
+</p>
+<p>
+    Azure was first introduced at the Professional Developers Conference (PDC) in October 2008 under the codename "Project Red Dog".[5] It was officially launched as Windows Azure in February 2010 and later renamed to Microsoft Azure on March 25, 2014
+</p>
+
+<h2 class="display-6">Розміщення парольної інформації у проєктах, що публікуються</h2>
+<p>
+    За умов коли в проєкті є АРІ-ключі, паролі до БД або токену доступу до 
+    сторонніх сервісів виникає питання забезпечення їх секретності.
+    Зазвичай проблема вирішується розділенням проєктних файлів на секретні, 
+    які вилучені з репозиторію, та їх копії, які мають правильну структуру, 
+    але замінену парольну інформацію.
+</p>
+<ul>
+    <li>
+        Вносимо до файлу <code>.gitignore</code> запис щодо вилучення файлів з 
+        конфігурацією (наприклад, <code>azuresettings.json</code>)
+    </li>
+    <li>
+        Створюємо самі файли конфігурації
+    </li>
+    <li>
+        Створюємо копії файлів конфігурації, замінюємо в них чутливі дані
+    </li>
+    <li>
+        Складаємо інструкцію, зазвичай, у README файлі репозиторію
+    </li>
+</ul>
+@*
+    Д.З. Забезпечити відображення результатів транслітерації 
+    у межах блоків з текстом (оригінальний та перекладений),
+    а також їх стилізацію (приглушений колір)
+    Опублікувати, прикласти посилання на сайт
+*@

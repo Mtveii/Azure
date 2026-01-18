@@ -1,0 +1,12 @@
+{
+  "Azure": {
+    "Translator": {
+      "Endpoint": "https://api.cognitive.microsofttranslator.com",
+      "Key": "**** CHANGE ME ****",
+      "Location": "**** CHANGE ME ****",
+      "ApiVersion": "3.0",
+      "TranslatorPath": "/translate",
+      "TransliteratorPath": "/transliterate"
+    }
+  }
+}

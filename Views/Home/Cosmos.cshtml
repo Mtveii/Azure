@@ -1,0 +1,19 @@
+﻿@model AzureP33.Models.Home.HomeCosmosViewModel
+@{
+    ViewData["Title"] = "CosmosDB";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Хмарні технології і використання Microsoft Azure під час розробки додатків</h1>
+</div>
+
+<h2 class="display-5">
+    CosmosDB
+</h2>
+
+@Model.RequestCharge
+
+@foreach(var p in Model.Products)
+{
+    <p>@p.name : @p.description</p>
+}
