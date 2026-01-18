@@ -1,18 +1,121 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+﻿/* Тёмная тема для всей страницы */
 body {
-  margin-bottom: 60px;
+    background-color: #000000;
+    color: #ffffff;
 }
+
+/* Заголовки */
+h1, h2, .display-4, .display-5, .display-6 {
+    color: #ffffff;
+}
+
+/* Ссылки */
+a {
+    color: #4da6ff;
+}
+
+    a:hover {
+        color: #80bfff;
+    }
+
+/* Формы */
+.form-control, .form-select {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #404040;
+}
+
+    .form-control:focus, .form-select:focus {
+        background-color: #1a1a1a;
+        color: #ffffff;
+        border-color: #666666;
+    }
+
+    .form-control:disabled, .form-control[readonly] {
+        background-color: #0d0d0d;
+        color: #cccccc;
+    }
+
+/* Лейблы */
+.form-label {
+    color: #ffffff;
+}
+
+/* Кнопки */
+.btn-outline-danger {
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+}
+
+    .btn-outline-danger:hover {
+        background-color: #ff4d4d;
+        color: #000000;
+    }
+
+.btn-outline-success {
+    color: #4dff4d;
+    border-color: #4dff4d;
+}
+
+    .btn-outline-success:hover {
+        background-color: #4dff4d;
+        color: #000000;
+    }
+
+/* Алерты */
+.alert-danger {
+    background-color: #330000;
+    color: #ff6666;
+    border-color: #660000;
+}
+
+/* Параграфы и списки */
+p, ul, li {
+    color: #e0e0e0;
+}
+
+/* Code блоки */
+code {
+    background-color: #1a1a1a;
+    color: #ff9999;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+
+.position-absolute {
+    color: #808080 !important;
+}
+.navbar {
+    background-color: #0d0d0d !important;
+    border-bottom: 1px solid #404040;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+}
+
+    .navbar-brand:hover {
+        color: #cccccc !important;
+    }
+
+.navbar-nav .nav-link {
+    color: #e0e0e0 !important;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: #ffffff !important;
+    }
+
+    .navbar-nav .nav-link.active {
+        color: #ffffff !important;
+    }
+
+.navbar-toggler {
+    border-color: #404040;
+}
+
+.navbar-toggler-icon {
+    filter: invert(1);
+}
+

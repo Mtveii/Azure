@@ -6,57 +6,20 @@
 <div class="text-center">
     <h1 class="display-4">Хмарні технології і використання Microsoft Azure під час розробки додатків</h1>
 </div>
- 
+
 <h2 class="display-5">
     Перекладач
 </h2>
 
 <a asp-action="Cosmos">Cosmos</a>
- 
+
 <form method="get" class="d-flex">
     <div class="flex-grow-1"></div>
     <div class="flex-grow-1">
         <label for="source-textarea" class="form-label">Текст, що буде перекладатись</label>
         <select class="form-select" aria-label="Мова оригіналу" name="lang-from">
             @{
-                String selectedKey = Model.FormModel?.LangFrom ?? "en";
-            }
-            @foreach(var item in Model.LanguagesResponse.Translations)
-            {
-                if (selectedKey == item.Key)
-                {
-                    <option selected value="@item.Key">@item.Value.Name</option>
-                }
-                else
-                {
-                    <option value="@item.Key">@item.Value.Name</option>
-                }
-            }
-        </select>
-        <div class="mb-3">
-            <textarea name="original-text" class="form-control" id="source-textarea" rows="3">@(Model.FormModel?.OriginalText ?? "Вітаю")</textarea>
-            @Model.FromTransliteration?.Text
-        </div>
-        
-    </div>
-    <span class="flex-grow-0 m-3">
-        <button class="btn btn-outline-danger" type="button">
-            <i class="bi bi-arrow-left-right"></i>
-        </button>
-        <br/>
-        <button class="btn btn-outline-success mt-4" type="submit" name="action-button" value="translate">
-            <i class="bi bi-translate"></i>
-        </button>
-        @* <br/>
-        <button class="btn btn-outline-warning mt-4" type="submit" name="action-button" value="transliterate">
-            <i class="bi bi-translate"></i>
-        </button> *@
-    </span>
-    <div class="flex-grow-1">
-        <label for="translation-textarea" class="form-label">Результат перекладу</label>
-        <select class="form-select" aria-label="Мова перекладу" name="lang-to">
-            @{
-                selectedKey = Model.FormModel?.LangTo ?? "uk";
+                String selectedKey = Model.FormModel?.LangFrom ?? "uk";
             }
             @foreach (var item in Model.LanguagesResponse.Translations)
             {
@@ -71,14 +34,77 @@
             }
         </select>
         <div class="mb-3">
-            <textarea disabled readonly class="form-control" id="translation-textarea" 
-                rows="3">@Model.Items?[0].Translations[0].Text</textarea>
-            @Model.ToTransliteration?.Text
-        </div>            
+            <div class="position-relative">
+                <textarea name="original-text"
+                          class="form-control"
+                          id="source-textarea"
+                          rows="3"
+                          style="padding-bottom: 2.5rem;">@(Model.FormModel?.OriginalText ?? "Вітаю")</textarea>
+
+                @if (!string.IsNullOrEmpty(Model.FromTransliteration?.Text))
+                {
+                    <div class="position-absolute bottom-0 start-0 end-0 px-3 pb-2"
+                         style="color: #6c757d; font-size: 0.875rem; pointer-events: none;">
+                        @Model.FromTransliteration.Text
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+    <span class="flex-grow-0 m-3">
+        <button class="btn btn-outline-danger" type="button">
+            <i class="bi bi-arrow-left-right"></i>
+        </button>
+        <br />
+        <button class="btn btn-outline-success mt-4" type="submit" name="action-button" value="translate">
+            <i class="bi bi-translate"></i>
+        </button>
+        @* <br/>
+        <button class="btn btn-outline-warning mt-4" type="submit" name="action-button" value="transliterate">
+            <i class="bi bi-translate"></i>
+        </button> *@
+    </span>
+    <div class="flex-grow-1">
+        <label for="translation-textarea" class="form-label">Результат перекладу</label>
+        <select class="form-select" aria-label="Мова перекладу" name="lang-to">
+            @{
+                selectedKey = Model.FormModel?.LangTo ?? "ru";
+            }
+            @foreach (var item in Model.LanguagesResponse.Translations)
+            {
+                if (selectedKey == item.Key)
+                {
+                    <option selected value="@item.Key">@item.Value.Name</option>
+                }
+                else
+                {
+                    <option value="@item.Key">@item.Value.Name</option>
+                }
+            }
+        </select>
+        <div class="mb-3">
+            <div class="position-relative">
+                <textarea disabled
+                          readonly
+                          class="form-control"
+                          id="translation-textarea"
+                          rows="3"
+                          style="padding-bottom: 2.5rem;">@Model.Items?[0].Translations[0].Text</textarea>
+
+                @if (!string.IsNullOrEmpty(Model.ToTransliteration?.Text))
+                {
+                    <div class="position-absolute bottom-0 start-0 end-0 px-3 pb-2"
+                         style="color: #6c757d; font-size: 0.875rem; pointer-events: none;">
+                        @Model.ToTransliteration.Text
+                    </div>
+                }
+            </div>
+        </div>
     </div>
     <div class="flex-grow-1"></div>
 </form>
-@if(Model.ErrorResponse != null)
+@if (Model.ErrorResponse != null)
 {
     <div class="alert alert-danger" role="alert">
         @Model.ErrorResponse.Error.Message (@Model.ErrorResponse.Error.Code)
@@ -96,15 +122,15 @@
 
 <h2 class="display-6">Розміщення парольної інформації у проєктах, що публікуються</h2>
 <p>
-    За умов коли в проєкті є АРІ-ключі, паролі до БД або токену доступу до 
+    За умов коли в проєкті є АРІ-ключі, паролі до БД або токену доступу до
     сторонніх сервісів виникає питання забезпечення їх секретності.
-    Зазвичай проблема вирішується розділенням проєктних файлів на секретні, 
-    які вилучені з репозиторію, та їх копії, які мають правильну структуру, 
+    Зазвичай проблема вирішується розділенням проєктних файлів на секретні,
+    які вилучені з репозиторію, та їх копії, які мають правильну структуру,
     але замінену парольну інформацію.
 </p>
-<ul>
+@* <ul>
     <li>
-        Вносимо до файлу <code>.gitignore</code> запис щодо вилучення файлів з 
+        Вносимо до файлу <code>.gitignore</code> запис щодо вилучення файлів з
         конфігурацією (наприклад, <code>azuresettings.json</code>)
     </li>
     <li>
@@ -116,7 +142,7 @@
     <li>
         Складаємо інструкцію, зазвичай, у README файлі репозиторію
     </li>
-</ul>
+</ul> *@
 @*
     Д.З. Забезпечити відображення результатів транслітерації 
     у межах блоків з текстом (оригінальний та перекладений),
