@@ -1,3 +1,5 @@
+using AzureP33.Services.CosmosDb;
+
 var builder = WebApplication.CreateBuilder(args);
 
 try
@@ -12,6 +14,8 @@ catch
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddCosmosDb();
+
 
 var app = builder.Build();
 
