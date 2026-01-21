@@ -1,38 +1,48 @@
 ﻿window.translationTask = 0;
 
-document.addEventListener(
-    'selectionchange', () => {
-        const fragment = document.getSelection().toString();
-        console.log(fragment);
-        if (window.translationTask != 0) {
-            clearTimeout(window.translationTask);
-        }
-        window.translationTask = setTimeout(
-            () => translate(fragment),
-            1000
-        );
+document.addEventListener('selectionchange', () => {
+    const fragment = document.getSelection().toString();
+
+    if (window.translationTask !== 0) {
+        clearTimeout(window.translationTask);
     }
-);
+
+    window.translationTask = setTimeout(() => {
+        translate(fragment);
+    }, 1000);
+});
 
 function translate(fragment) {
     fragment = fragment.trim();
-    if (fragment.length > 0) {
-        const langFrom = document.querySelector('select[name="lang-from"]').value;
-        const langTo = document.querySelector('select[name="lang-to"]').value;
 
-        console.log("Translated: ", fragment);
-        fetch(`/Home/FetchTranslation?lang-from=${langFrom}&lang-to=${langTo}&original-text=${fragment}&action-button=fetch`)
-            .then(r => r.json())
-            .then(j => {
-                alert(j);
-            });
-    }    
-    window.translationTask = 0;
+    if (fragment.length === 0) {
+        window.translationTask = 0;
+        return;
+    }
+
+    const langFromEl = document.querySelector('select[name="lang-from"]');
+    const langToEl = document.querySelector('select[name="lang-to"]');
+
+    const langFrom = langFromEl ? langFromEl.value : 'uk';
+    const langTo = langToEl ? langToEl.value : 'ru';
+
+    fetch(
+        `/Home/FetchTranslation?lang-from=${encodeURIComponent(langFrom)}&lang-to=${encodeURIComponent(langTo)}&original-text=${encodeURIComponent(fragment)}&action-button=fetch`
+    )
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Translation service unavailable');
+            }
+            return response.json();
+        })
+        .then(translation => {
+            const separator = fragment.length > 30 ? '\n' : ' - ';
+            alert(`[${fragment}${separator}${translation}]`);
+        })
+        .catch(() => {
+            alert('Сервис перевода временно недоступен');
+        })
+        .finally(() => {
+            window.translationTask = 0;
+        });
 }
-/*
-Д.З. Додати до результату перекладу і сам текст, що перекладався:
-[development - розробка]
-* якщо довжина тексту велика, то розділяти розривом рядка, інакше - символом тире
-У разі помилки (як 400, так і 500) виводити повідомлення про 
-тимчасову непридатність сервісу перекладу
-*/
