@@ -27,7 +27,6 @@ namespace AzureP33.Controllers
             _configuration = configuration;
             _cosmosDbService = cosmosDbService;
         }
-        
 
         public async Task<IActionResult> IndexAsync(HomeIndexFormModel? formModel)
         {
@@ -215,31 +214,52 @@ namespace AzureP33.Controllers
             }
         }
 
+        public async Task<IActionResult> CosmosAddAsync([FromForm] HomeCosmosAddFormModel? formModel)
+        {
+            if(formModel?.Action == "Create")
+            {
+                if(String.IsNullOrEmpty(formModel.Name) 
+                || String.IsNullOrEmpty(formModel.Email))
+                {
+                    ViewData["result"] = "Заповніть усі поля";
+                }
+                else
+                {
+                    Container container = await _cosmosDbService.GetContainerAsync();
+                    Models.Cosmos.User user = new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = formModel.Name,
+                        Email = formModel.Email,
+                    };
+
+                    ItemResponse<Models.Cosmos.User> response = await container.UpsertItemAsync<Models.Cosmos.User>(
+                        item: user,
+                        partitionKey: new PartitionKey(Models.Cosmos.User.PartitionKey)
+                    );
+
+                    ViewData["result"] = $"Upserted item: {response.Resource}, Status code: {response.StatusCode}, Request charge: {response.RequestCharge:0.00}";
+                }
+            }
+            return View();
+        }
+        /* Завдання
+         * Збереження у БД історії перекладів (використання перекладача)
+         * - Зробити запобіжник (чекбокс) на сторінці з перекладачем, який 
+         *    включає (або виключає) переклад виділенням. [за замовчанням - вимкнений]
+         * - Розробити моделі для збереження даних у БД з урахуванням
+         *    дата-час, ід користувача (опціонально), оригінальний текст та мова,
+         *    перекладений текст та мова, обидві транслітерації (за наявності) з позначками
+         *    скриптів, вжитих для транслітерації
+         * - Реалізувати передачу до БД усіх успішних звернень до перекладача
+         * - Реалізувати завантаження історії перекладів (на вибір)
+         *    = або при завантаженні сторінки (перекладача)
+         *    = або за натисканням кнопки
+         */
 
         public async Task<IActionResult> CosmosAsync()
-        {
-            var sec = _configuration.GetSection("Azure")?.GetSection("Translator") 
-                ?? throw new Exception("Configuration error: Azure.Translator is null");
-
-            String connectionString = sec.GetValue<String>("connectionString") 
-                ?? throw new Exception("connectionString error: 'Key' is null");
-
-            String DatabaseId = sec.GetValue<String>("DatabaseId")
-                ?? throw new Exception("DatabaseId error: 'Key' is null");
-
-            String ContainerId = sec.GetValue<String>("ContainerId")
-                ?? throw new Exception("ContainerId error: 'Key' is null");
-
-            CosmosClient client = new(
-                connectionString: ""
-            );
-
-            Database database = await client.GetDatabase(DatabaseId).ReadAsync();
-            
-
-            Container container = await database.GetContainer(ContainerId).ReadContainerAsync();
-
-            
+        {            
+            Container container = await _cosmosDbService.GetContainerAsync();
 
             var query = new QueryDefinition(
                 query: "SELECT * FROM c WHERE c.categoryId = @category"

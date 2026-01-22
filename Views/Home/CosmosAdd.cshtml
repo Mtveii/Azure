@@ -1,0 +1,21 @@
+﻿@model AzureP33.Models.Home.HomeCosmosViewModel
+@{
+    ViewData["Title"] = "CosmosDB";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Хмарні технології і використання Microsoft Azure під час розробки додатків</h1>
+</div>
+
+<h2 class="display-5">
+    CosmosDB: додавання елементів
+</h2>
+
+<form>
+    <h3>Новий користувач</h3>
+    Імя <input name="Name"/> <br/>
+    E-mail:<input name="Email" /> <br />
+    <button>створти</button>
+</form> 
+
+@ViewData["result"]

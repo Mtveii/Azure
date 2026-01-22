@@ -16,20 +16,20 @@ namespace AzureP33.Services.CosmosDb
         {
             if (container == null)
             {
-                var sec = _configuration.GetSection("Azure")?.GetSection("Translator")
-               ?? throw new Exception("Configuration error: Azure.Translator is null");
+                var sec = _configuration.GetSection("Azure")?.GetSection("CosmosDB")
+               ?? throw new Exception("Configuration error: Azure.CosmosDB is null");
 
                 String connectionString = sec.GetValue<String>("connectionString")
-                    ?? throw new Exception("connectionString error: 'Key' is null");
+                    ?? throw new Exception("Configuration error: 'connectionString' is null");
 
                 String DatabaseId = sec.GetValue<String>("DatabaseId")
-                    ?? throw new Exception("DatabaseId error: 'Key' is null");
+                    ?? throw new Exception("Configuration error: 'DatabaseId' is null");
 
                 String ContainerId = sec.GetValue<String>("ContainerId")
-                    ?? throw new Exception("ContainerId error: 'Key' is null");
+                    ?? throw new Exception("Configuration error: 'ContainerId' is null");
 
                 CosmosClient client = new(
-                    connectionString: ""
+                    connectionString: connectionString
                 );
 
                 Database database = await client.GetDatabase(DatabaseId).ReadAsync();
