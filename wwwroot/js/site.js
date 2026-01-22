@@ -8,7 +8,9 @@ document.addEventListener('selectionchange', () => {
     }
 
     window.translationTask = setTimeout(() => {
+        if (document.getElementById("checkbox").checked) { 
         translate(fragment);
+    }
     }, 1000);
 });
 
