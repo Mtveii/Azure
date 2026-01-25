@@ -255,30 +255,65 @@ namespace AzureP33.Controllers
          * - Реалізувати передачу до БД усіх успішних звернень до перекладача
          * - Реалізувати завантаження історії перекладів (на вибір)
          *    = або при завантаженні сторінки (перекладача)
-         *    = або за натисканням кнопки
+         *    = або за натисканням кнопки   
          */
 
-        public async Task<IActionResult> CosmosAsync()
+        public async Task<IActionResult> CosmosAsync([FromQuery] Guid[]? selectedCategoryIds)
         {            
             Container container = await _cosmosDbService.GetContainerAsync();
 
-            var query = new QueryDefinition(
-                query: "SELECT * FROM c WHERE c.categoryId = @category"
-            ).WithParameter("@category", "26C74104-40BC-4541-8EF5-9892F7F03D72");
+            // --- Получаем доступные категории (categoryId + categoryName) ---
+            var catQuery = new QueryDefinition("SELECT c.categoryId, c.categoryName FROM c");
+            using FeedIterator<Category> catFeed = container.GetItemQueryIterator<Category>(catQuery);
 
-            using FeedIterator<Product> feed = container.GetItemQueryIterator<Product>(
-                queryDefinition: query
-            );
+            List<Category> categories = new();
+            while (catFeed.HasMoreResults)
+            {
+                FeedResponse<Category> resp = await catFeed.ReadNextAsync();
+                foreach (var c in resp)
+                {
+                    categories.Add(c);
+                }
+            }
+            // Унікальні категорії по categoryId
+            categories = categories
+                .GroupBy(c => c.categoryId)
+                .Select(g => g.First())
+                .OrderBy(c => c.categoryName)
+                .ToList();
+
+            // --- Формируем запрос продуктов в зависимости от выбранных категорий ---
+            QueryDefinition prodQuery;
+            if (selectedCategoryIds != null && selectedCategoryIds.Length > 0)
+            {
+                var sb = new StringBuilder();
+                sb.Append("SELECT * FROM c WHERE ");
+                for (int i = 0; i < selectedCategoryIds.Length; i++)
+                {
+                    if (i > 0) sb.Append(" OR ");
+                    sb.Append($"c.categoryId = @id{i}");
+                }
+
+                prodQuery = new QueryDefinition(sb.ToString());
+                for (int i = 0; i < selectedCategoryIds.Length; i++)
+                {
+                    // сохраняем как строку, т.к. в БД поле хранится как строковий GUID
+                    prodQuery = prodQuery.WithParameter($"@id{i}", selectedCategoryIds[i].ToString());
+                }
+            }
+            else
+            {
+                prodQuery = new QueryDefinition("SELECT * FROM c");
+            }
+
+            using FeedIterator<Product> feed = container.GetItemQueryIterator<Product>(prodQuery);
 
             List<Product> items = new();
             double requestCharge = 0d;
             while (feed.HasMoreResults)
             {
                 FeedResponse<Product> response = await feed.ReadNextAsync();
-                foreach (Product item in response)
-                {
-                    items.Add(item);
-                }
+                items.AddRange(response);
                 requestCharge += response.RequestCharge;
             }
 
@@ -286,6 +321,8 @@ namespace AzureP33.Controllers
             {
                 Products = items,
                 RequestCharge = requestCharge,
+                AvailableCategories = categories,
+                SelectedCategoryIds = selectedCategoryIds ?? Array.Empty<Guid>()
             });
             /*
              * Д.З. Виконати код підключення до БД з домашніх ПК,
