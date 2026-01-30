@@ -103,6 +103,16 @@ namespace AzureP33.Controllers
                 catch { }
 
             }
+            if (viewModel.Items != null && formModel.Action == "translate")
+            {
+                // Тут можна додати перевірку чекбокса (запобіжника)
+                await SaveTranslationToHistoryAsync(
+                    formModel,
+                    viewModel.Items[0].Translations[0].Text,
+                    viewModel.FromTransliteration,
+                    viewModel.ToTransliteration
+                );
+            }
 
             viewModel.LanguagesResponse = await respTask;
             return View(viewModel);
@@ -341,6 +351,90 @@ namespace AzureP33.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+
+        private async Task SaveTranslationToHistoryAsync(
+            HomeIndexFormModel formModel,
+            string translatedText,
+            TransliteratorResponseItem? fromTrans,
+            TransliteratorResponseItem? toTrans)
+        {
+            // 1. Використовуємо модель User (наприклад, анонімний або системний користувач)
+            var currentUser = new AzureP33.Models.Cosmos.User { Id = Guid.NewGuid(), Name = "Guest" };
+
+            // 2. Використовуємо модель Category для позначення типу запису в БД
+            var historyCategory = new Category
+            {
+                categoryId = Guid.NewGuid(),
+                categoryName = "TranslationHistory"
+            };
+
+            // 3. Формуємо об'єкти транслітерації (модель Trasliteration)
+            Trasliteration? fromT = fromTrans == null ? null : new Trasliteration
+            {
+                fromSrcipt = "Latn", // Приклад. У реальному коді брати з LangData
+                toSrcipt = "Cyrl",
+                result = fromTrans.Text
+            };
+
+            Trasliteration? toT = toTrans == null ? null : new Trasliteration
+            {
+                fromSrcipt = "Cyrl",
+                toSrcipt = "Latn",
+                result = toTrans.Text
+            };
+
+            // 4. Формуємо моделі trans_from та trans_to
+            var fromData = new trans_from
+            {
+                lang = formModel.LangFrom,
+                text = formModel.OriginalText,
+                trasliteration = fromT!
+            };
+
+            var toData = new trans_to
+            {
+                lang = formModel.LangTo,
+                text = translatedText,
+                trasliteration = toT!
+            };
+
+            // 5. Створюємо головний об'єкт історії (HistoryTranslate)
+            var historyEntry = new HistoryTranslate
+            {
+                categoryId = historyCategory.categoryId.ToString(), // Використовуємо ID категорії
+                userId = currentUser.Id, // Використовуємо ID користувача
+                time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                from = fromData,
+                to = toData
+            };
+
+            // Додатково: приклад використання моделі Product (якщо переклад стосується товару)
+            // Можна додати метадані, що цей переклад зроблено для перегляду списку Product
+            var contextProduct = new Product { name = "Translation Context" };
+
+            // 6. Запис у Cosmos DB
+            Container container = await _cosmosDbService.GetContainerAsync();
+            await container.CreateItemAsync(historyEntry, new PartitionKey(historyEntry.categoryId));
+        }
+
+
+        public async Task<List<HistoryTranslate>> GetTranslationHistoryAsync()
+        {
+            Container container = await _cosmosDbService.GetContainerAsync();
+
+            // Шукаємо записи за категорією історії
+            var query = new QueryDefinition("SELECT * FROM c WHERE IS_DEFINED(c.from) AND IS_DEFINED(c.to)");
+            using FeedIterator<HistoryTranslate> iterator = container.GetItemQueryIterator<HistoryTranslate>(query);
+
+            List<HistoryTranslate> history = new();
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                history.AddRange(response);
+            }
+            return history;
         }
     }
 
